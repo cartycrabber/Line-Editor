@@ -18,7 +18,20 @@ public class LineTester {
 
 	@Test
 	public void testInsert() {
-		fail("Not yet implemented");
+		line.insert(10, "great ");
+		assertEquals("Line: This is a great test line", line.toString());
+		line.insert(0, "Wow, ");
+		assertEquals("Line: Wow, This is a great test line", line.toString());
+		line.insert(30, "! Good Job");
+		assertEquals("Line: Wow, This is a great test line! Good Job", line.toString());
+		line.insert(40, "!");
+		assertEquals("Line: Wow, This is a great test line! Good Job!", line.toString());
+		line.insert(0, "");
+		assertEquals("Line: Wow, This is a great test line! Good Job!", line.toString());
+		line.insert(41, "");
+		assertEquals("Line: Wow, This is a great test line! Good Job!", line.toString());
+		line.insert(20, "");
+		assertEquals("Line: Wow, This is a great test line! Good Job!", line.toString());
 	}
 
 	@Test
@@ -27,6 +40,12 @@ public class LineTester {
 		assertEquals("Line:  is a test line", line.toString());
 		line.delete(0, 0);
 		assertEquals("Line: is a test line", line.toString());
+		line.delete(13, 13);
+		assertEquals("Line: is a test lin", line.toString());
+		line.delete(8, 8);
+		assertEquals("Line: is a tes lin", line.toString());
+		line.delete(0, 11);
+		assertEquals("Line: ", line.toString());
 	}
 
 	@Test
