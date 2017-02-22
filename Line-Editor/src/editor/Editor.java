@@ -63,6 +63,7 @@ public class Editor {
 				deleteLine();
 				break;
 			case "dr"://Delete Range
+				deleteRange();
 				break;
 			case "cr"://Copy Range
 				break;
@@ -571,5 +572,46 @@ public class Editor {
 		
 		//Delete the line, converting from 1 indexed to 0 indexed
 		doc.deleteLine(line - 1);
+	}
+	
+	static void deleteRange() {
+		int start = 0;
+		int end = 0;
+		
+		//Prompt for start position and validate input
+		System.out.print("from position?\t");
+		try {
+			start = Integer.parseInt(in.nextLine());
+			if((start <= 0) || (start > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid start position");
+			return;
+		}
+		
+		//Prompt for end position and validate input
+		System.out.print("to position?\t");
+		try {
+			end = Integer.parseInt(in.nextLine());
+			if((end <= 0) || (end > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid end position");
+			return;
+		}
+		
+		//Make sure start isnt after end
+		if(start > end) {
+			System.out.println("Start can't be after end");
+			return;
+		}
+		
+		//Iterate through all the lines, removing each one
+		for(int i = start; i <= end; i++) {
+			//Convert from 1 indexed to 0 indexed
+			doc.deleteLine(start - 1);
+		}
 	}
 }
