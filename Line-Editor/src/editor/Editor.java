@@ -10,19 +10,22 @@ import utilities.LineList;
 
 public class Editor {
 	
-	//Create static class-wide document
+	//Define static class-wide document, scanner, and copy buffers
 	static Document doc;
+	static Scanner in;
+	static LineList lineCopyBuffer;
+	static String charCopyBuffer;
 
 	public static void main(String[] args) {
 		//Create our copy buffers
-		LineList lineCopyBuffer = new LineList();
-		String charCopyBuffer = "";
+		lineCopyBuffer = new LineList();
+		charCopyBuffer = "";
 		
 		//Create a blank document
 		doc = new Document();
 		
 		//Create the input scanner
-		Scanner in = new Scanner(System.in);
+		in = new Scanner(System.in);
 		
 		//Show the menu for the first time
 		showMenu();
@@ -39,77 +42,19 @@ public class Editor {
 				showMenu();
 				break;
 			case "l"://Load File
-				System.out.println("\tEnter file name to load");
-				System.out.print("->");
-				//Wait for them to type in a file
-				String path = in.nextLine();
-				//Try to read the file at path. if there is an exception, the file could not be found
-				try {
-					loadFileIntoDocument(path);
-				} catch (FileNotFoundException e) {
-					System.out.println("\tPath not found");
-				}
+				load();
 				break;
 			case "sa"://Show All
 				showAll();
 				break;
 			case "sl"://Show Line
-				//Prompt for line number
-				System.out.print("Which line?");
-				String line = in.nextLine();
-				//Try to turn what they typed into an int. if parseInt throws an exception then they messed up
-				try {
-					showLine(Integer.parseInt(line));
-				} catch (Exception e) {
-					//What they typed in either wasn't a number or it was out of bounds of the document
-					//Either way we don't care, just go back to the main menu
-					System.out.println("Invalid line number");
-				}
+				showLine();
 				break;
 			case "sr"://Show Range
-				//Prompt for start and end line numbers
-				System.out.print("Starting line?\t");
-				String start = in.nextLine();
-				//Check and make sure this is valid input
-				int startLine;
-				try {
-					startLine = Integer.parseInt(start);
-					//If it's out of bounds of the doc, throw an exception so we go into the catch
-					if((startLine <= 0) || (startLine > doc.length()))
-						throw new Exception();
-				} catch (Exception e) {
-					System.out.println("Invalid line number");
-					//Just skip over everything else in this loop and go back to the menu
-					continue;
-				}
-				
-				System.out.print("Ending line?\t");
-				String end = in.nextLine();
-				//Check and make sure this is valid input
-				int endLine;
-				try {
-					endLine = Integer.parseInt(end);
-					//If it's out of bounds of the doc, throw an exception so we go into the catch
-					if((endLine <= 0) || (endLine > doc.length()))
-						throw new Exception();
-				} catch (Exception e) {
-					System.out.println("Invalid line number");
-					//Just skip over everything else in this loop and go back to the menu
-					continue;
-				}
-				
-				//Make sure starting line is not after ending line
-				if(startLine > endLine) {
-					System.out.println("Start line cannot be greater than end line");
-					//skip over everything else in this cycle
-					continue;
-				}
-				
-				//Now that we know the line numbers are good, print them out
-				showRange(startLine, endLine);
+				showRange();
 				break;
 			case "nl"://New Line
-				
+				newLine();
 				break;
 			case "el"://Edit Line
 				break;
@@ -147,7 +92,7 @@ public class Editor {
 	}
 	
 	/**
-	 * Reads the file at specified path into the specified document
+	 * Reads the file at specified path into the document
 	 * @param path
 	 * @param doc
 	 * @throws FileNotFoundException if the path does not point to an existing file
@@ -178,21 +123,143 @@ public class Editor {
 	}
 	
 	/**
+	 * Performs the load command, asking for input and validating input then passing that to the load file function
+	 */
+	static void load() {
+		System.out.println("\tEnter file name to load");
+		System.out.print("->");
+		//Wait for them to type in a file
+		String path = in.nextLine();
+		//Try to read the file at path. if there is an exception, the file could not be found
+		try {
+			loadFileIntoDocument(path);
+		} catch (FileNotFoundException e) {
+			System.out.println("\tPath not found");
+		}
+	}
+	
+	/**
 	 * Shows all lines in the doc
 	 */
 	static void showAll() {
 		for(int i = 0; i < doc.length(); i++) {
+			//Add one because doc is 0 indexed but user input is 1 indexed
 			System.out.println((i + 1) + ":\t" + doc.getLine(i).getAll());
 		}
 	}
 	
-	static void showLine(int line) {
-		System.out.println(line + ":\t" + doc.getLine(line - 1).getAll());
+	static void showLine() {
+		//Prompt for line number
+		System.out.print("Which line?");
+		String line = in.nextLine();
+		//Try to turn what they typed into an int. if parseInt throws an exception then they messed up
+		try {
+			//Subtract one because doc is 0 indexed but user input is 1 indexed
+			System.out.println(line + ":\t" + doc.getLine(Integer.parseInt(line) - 1).getAll());
+		} catch (Exception e) {
+			//What they typed in either wasn't a number or it was out of bounds of the document
+			//Either way we don't care, just go back to the main menu
+			System.out.println("Invalid line number");
+		}
 	}
 	
-	static void showRange(int startLine, int endLine) {
+	static void showRange() {
+		//Prompt for start and end line numbers
+		System.out.print("Starting line?\t");
+		String start = in.nextLine();
+		//Check and make sure this is valid input
+		int startLine;
+		try {
+			startLine = Integer.parseInt(start);
+			//If it's out of bounds of the doc, throw an exception so we go into the catch
+			if((startLine <= 0) || (startLine > doc.length()))
+				throw new Exception();
+		} catch (Exception e) {
+			System.out.println("Invalid line number");
+			//Just skip over everything else in this loop and go back to the menu
+			return;
+		}
+		
+		System.out.print("Ending line?\t");
+		String end = in.nextLine();
+		//Check and make sure this is valid input
+		int endLine;
+		try {
+			endLine = Integer.parseInt(end);
+			//If it's out of bounds of the doc, throw an exception so we go into the catch
+			if((endLine <= 0) || (endLine > doc.length()))
+				throw new Exception();
+		} catch (Exception e) {
+			System.out.println("Invalid line number");
+			//Just skip over everything else in this loop and go back to the menu
+			return;
+		}
+		
+		//Make sure starting line is not after ending line
+		if(startLine > endLine) {
+			System.out.println("Start line cannot be greater than end line");
+			//skip over everything else in this cycle
+			return;
+		}
+		//Actually print out the lines now
 		for(int i = startLine; i <= endLine; i++) {
+			//Subtract one because doc is 0 indexed but user input is 1 indexed
 			System.out.println(i + ":\t" + doc.getLine(i - 1).getAll());
+		}
+	}
+	
+	static void newLine() {
+		int lineNumber;
+		//If the doc is empty then this is the first line, else prompt for where to put this line
+		if(doc.length() == 0) {
+			lineNumber = 0;
+		}
+		else {
+			System.out.println("Insert after line number:\t");
+			try {
+				//Read the input and parse it into an int
+				lineNumber = Integer.parseInt(in.nextLine());
+				//If specified number is out of bounds throw an exception
+				if((lineNumber < 0) || (lineNumber > doc.length()))
+					throw new Exception();
+			} catch (Exception e) {
+				//Either input wasn't a number or it was out of bounds
+				System.out.println("Invalid line number");
+				return;
+			}
+		}
+		//At this point we have a good line number
+		//Check if we're inserting at the beginning or not
+		if(lineNumber == 0) {
+			System.out.println("Inserting at first line");
+		}
+		else {
+			System.out.println("Inserting after:");
+			//Subtract one because doc is 0 indexed but user input is 1 indexed
+			System.out.println(doc.getLine(lineNumber - 1).getAll());
+		}
+		
+		while(true) {
+			System.out.println("Type line? (y/n):\t");
+			String response = in.nextLine();
+			
+			if(response.equals("y")) {
+				//Add one because Document is 0 indexed but the editor is 1 indexed
+				System.out.print((lineNumber + 1) + ":\t");
+				//Insert whatever they type into the previously specified position in the doc
+				doc.insertLine(lineNumber, new Line(in.nextLine()));
+				//increment lineNumber so if we come through the loop again we are working on the next line
+				lineNumber++;
+			}
+			else if(response.equals("n")) {
+				//Just break out of this loop and go back to the main menu
+				break;
+			}
+			else {
+				System.out.println("Invalid response");
+				//Skip to the next cycle of this loop
+				continue;
+			}
 		}
 	}
 }
