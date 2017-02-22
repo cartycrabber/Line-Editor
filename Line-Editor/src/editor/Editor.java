@@ -1,8 +1,10 @@
 package editor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -15,6 +17,9 @@ public class Editor {
 	static Scanner in;
 	static LineList lineCopyBuffer;
 	static String stringCopyBuffer;
+	
+	//hold the path to the last opened file
+	static String filePath;
 
 	public static void main(String[] args) {
 		//Create our copy buffers
@@ -26,6 +31,9 @@ public class Editor {
 		
 		//Create the input scanner
 		in = new Scanner(System.in);
+		
+		//Initialize this to some default value
+		filePath = "";
 		
 		//Show the menu for the first time
 		showMenu();
@@ -66,15 +74,19 @@ public class Editor {
 				deleteRange();
 				break;
 			case "cr"://Copy Range
+				copyRange();
 				break;
 			case "pl"://Paste Lines
+				pasteLines();
 				break;
 			case "w"://Write to File
+				write();
 				break;
 			case "q"://Quit
 				return;
 			case "wq"://Write and Quit
-				break;
+				write();
+				return;
 			default:
 				System.out.println("Unrecognized command");
 			}
@@ -125,6 +137,9 @@ public class Editor {
 			
 			//Close the stream to avoid memory leaks
 			inputStream.close();
+			
+			//We just loaded a file, so update filePath 
+			filePath = path;
 		} catch (IOException e) {
 			System.out.println("\tError reading file");
 		}
@@ -574,6 +589,9 @@ public class Editor {
 		doc.deleteLine(line - 1);
 	}
 	
+	
+	
+	
 	static void deleteRange() {
 		int start = 0;
 		int end = 0;
@@ -612,6 +630,111 @@ public class Editor {
 		for(int i = start; i <= end; i++) {
 			//Convert from 1 indexed to 0 indexed
 			doc.deleteLine(start - 1);
+		}
+	}
+	
+	
+	
+	
+	static void copyRange() {
+		int start = 0;
+		int end = 0;
+		
+		//Prompt for start position and validate input
+		System.out.print("from position?\t");
+		try {
+			start = Integer.parseInt(in.nextLine());
+			if((start <= 0) || (start > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid start position");
+			return;
+		}
+		
+		//Prompt for end position and validate input
+		System.out.print("to position?\t");
+		try {
+			end = Integer.parseInt(in.nextLine());
+			if((end <= 0) || (end > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid end position");
+			return;
+		}
+		
+		//Make sure start isnt after end
+		if(start > end) {
+			System.out.println("Start can't be after end");
+			return;
+		}
+		
+		//Clear out the copy buffer
+		lineCopyBuffer = new LineList();
+		
+		//Iterate through all the lines, adding each one to the copy buffer
+		//Go backwards so we can keep inserting at the front of the copy buffer
+		for(int i = end; i >= start; i--) {
+			//Insert at front because we are inserting in reverse order
+			//Subtract 1 to go from 1 indexed to 0 indexed
+			lineCopyBuffer.insertAt(0, doc.getLine(i - 1));
+		}
+	}
+	
+	
+	
+	
+	static void pasteLines() {
+		System.out.print("Paste after line number?\t");
+		int line = 0;
+		//wait for input and validate it
+		try {
+			line = Integer.parseInt(in.nextLine());
+			
+			if((line <= 0) || (line > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid line number");
+			return;
+		}
+		
+		//Finally use our handy dandy insertMultipleLines function to easily do this
+		//Because we are inserting AFTER the specified line, we don't have to add anything to convert from 1 to 0 indexed
+		doc.insertMultipleLines(line, lineCopyBuffer);
+	}
+	
+	
+	
+	
+	static void write() {
+		//If filepath is  still the default value, then we haven't opened another file and need to prompt for the file to store in
+		String path = filePath;
+		if(filePath == "") {
+			System.out.println("File to write to?\t");
+			path = in.nextLine();
+		}
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+			
+			//Iterate through every line in doc and write it to the file
+			for(int i = 0; i < doc.length(); i++) {
+				writer.write(doc.getLine(i).getAll());
+				//Make sure to add a line break so each line is actually on a new line
+				writer.write("\n");
+			}
+			
+			//close the writer because we're done with it
+			writer.close();
+			
+			//We just loaded a file so filePath needs to be updated with the path of the file we just loaded
+			filePath = path;
+		} catch (IOException e) {
+			System.out.println("Could not write to file");
+			//reset filePath because this path isnt working
+			filePath = "";
 		}
 	}
 }
