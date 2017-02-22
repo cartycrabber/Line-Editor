@@ -9,6 +9,9 @@ import java.util.Scanner;
 import utilities.LineList;
 
 public class Editor {
+	
+	//Create static class-wide document
+	static Document doc;
 
 	public static void main(String[] args) {
 		//Create our copy buffers
@@ -16,7 +19,7 @@ public class Editor {
 		String charCopyBuffer = "";
 		
 		//Create a blank document
-		Document doc = new Document();
+		doc = new Document();
 		
 		//Create the input scanner
 		Scanner in = new Scanner(System.in);
@@ -42,15 +45,13 @@ public class Editor {
 				String path = in.nextLine();
 				//Try to read the file at path. if there is an exception, the file could not be found
 				try {
-					readFileIntoDocument(path, doc);
+					loadFileIntoDocument(path);
 				} catch (FileNotFoundException e) {
 					System.out.println("\tPath not found");
 				}
 				break;
 			case "sa"://Show All
-				for(int i = 0; i < doc.length(); i++) {
-					System.out.println((i + 1) + ":\t" + doc.getLine(i).getAll());
-				}
+				showAll();
 				break;
 			case "sl"://Show Line
 				//Prompt for line number
@@ -58,7 +59,7 @@ public class Editor {
 				String line = in.nextLine();
 				//Try to turn what they typed into an int. if parseInt throws an exception then they messed up
 				try {
-					System.out.println(line + ":\t" + doc.getLine(Integer.parseInt(line) - 1).getAll());
+					showLine(Integer.parseInt(line));
 				} catch (Exception e) {
 					//What they typed in either wasn't a number or it was out of bounds of the document
 					//Either way we don't care, just go back to the main menu
@@ -105,11 +106,10 @@ public class Editor {
 				}
 				
 				//Now that we know the line numbers are good, print them out
-				for(int i = startLine; i <= endLine; i++) {
-					System.out.println(i + ":\t" + doc.getLine(i - 1).getAll());
-				}
+				showRange(startLine, endLine);
 				break;
 			case "nl"://New Line
+				
 				break;
 			case "el"://Edit Line
 				break;
@@ -152,7 +152,7 @@ public class Editor {
 	 * @param doc
 	 * @throws FileNotFoundException if the path does not point to an existing file
 	 */
-	static void readFileIntoDocument(String path, Document doc) throws FileNotFoundException {
+	static void loadFileIntoDocument(String path) throws FileNotFoundException {
 		//try to open a file buffered reader to read from the file
 		BufferedReader inputStream = new BufferedReader(new FileReader(path));
 		String line;
@@ -174,6 +174,25 @@ public class Editor {
 			inputStream.close();
 		} catch (IOException e) {
 			System.out.println("\tError reading file");
+		}
+	}
+	
+	/**
+	 * Shows all lines in the doc
+	 */
+	static void showAll() {
+		for(int i = 0; i < doc.length(); i++) {
+			System.out.println((i + 1) + ":\t" + doc.getLine(i).getAll());
+		}
+	}
+	
+	static void showLine(int line) {
+		System.out.println(line + ":\t" + doc.getLine(line - 1).getAll());
+	}
+	
+	static void showRange(int startLine, int endLine) {
+		for(int i = startLine; i <= endLine; i++) {
+			System.out.println(i + ":\t" + doc.getLine(i - 1).getAll());
 		}
 	}
 }
