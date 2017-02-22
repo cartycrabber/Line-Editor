@@ -31,7 +31,8 @@ public class Document {
 		for(int i = 0; i < linesToInsert.size(); i++) {
 			//line position to insert at is i places after startLineNumber
 			//This way we start at the startLineNumber, increasing by one line each time
-			insertLine(startLineNumber + i, linesToInsert.get(i));
+			//Make a new string reference out of this so we don't have wonky things where changing one line changes a bunch of others
+			insertLine(startLineNumber + i, new Line(linesToInsert.get(i).getAll()));
 		}
 	}
 	

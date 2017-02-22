@@ -447,7 +447,8 @@ public class Editor {
 		}
 		
 		//Now we can actually copy the substring to the buffer
-		stringCopyBuffer = line.get(start, end);
+		//Make a new string reference out of this so we don't have wonky things where changing one line changes a bunch of others
+		stringCopyBuffer = new String(line.get(start, end));
 	}
 	
 	
@@ -486,7 +487,8 @@ public class Editor {
 		}
 		
 		//Copy the substring to the buffer, then delete the substring from the line
-		stringCopyBuffer = line.get(start, end);
+		//Make a new string reference out of this so we don't have wonky things where changing one line changes a bunch of others
+		stringCopyBuffer = new String(line.get(start, end));
 		line.delete(start, end);
 	}
 	
@@ -507,7 +509,8 @@ public class Editor {
 		}
 		
 		//Now that we have a good insert position, go ahead and insert the copy buffer into the line
-		line.insert(insertPosition, stringCopyBuffer);
+		//Make a new string reference out of this so we don't have wonky things where changing one line changes a bunch of others
+		line.insert(insertPosition, new String(stringCopyBuffer));
 	}
 	
 	
@@ -678,7 +681,8 @@ public class Editor {
 		for(int i = end; i >= start; i--) {
 			//Insert at front because we are inserting in reverse order
 			//Subtract 1 to go from 1 indexed to 0 indexed
-			lineCopyBuffer.insertAt(0, doc.getLine(i - 1));
+			//Make a new reference out of this so we don't have wonky things where changing one line changes a bunch of others
+			lineCopyBuffer.insertAt(0, new Line(doc.getLine(i - 1).getAll()));
 		}
 	}
 	
