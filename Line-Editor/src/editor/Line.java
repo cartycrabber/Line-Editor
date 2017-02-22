@@ -81,6 +81,14 @@ public class Line {
 		return data.substring(startPosition, endPosition + 1);
 	}
 	
+	/**
+	 * Returns the entire string
+	 * @return
+	 */
+	public String getAll() {
+		return data;
+	}
+	
 	public int length() {
 		return data.length();
 	}

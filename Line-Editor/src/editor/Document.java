@@ -44,6 +44,13 @@ public class Document {
 	}
 	
 	/**
+	 * Removes all lines in the document, leaving a blank document
+	 */
+	public void clear() {
+		lines = new LineList();
+	}
+	
+	/**
 	 * Returns the Line at the specified line number
 	 * @param lineNumber
 	 * @return
