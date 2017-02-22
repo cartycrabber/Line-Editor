@@ -116,6 +116,14 @@ public class LineList {
 	}
 	
 	/**
+	 * Returns how many Lines are in the list
+	 * @return number of Lines in the list
+	 */
+	public int size() {
+		return size;
+	}
+	
+	/**
 	 * Returns a string representation of the list
 	 */
 	public String toString() {

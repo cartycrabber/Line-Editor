@@ -81,7 +81,7 @@ public class Line {
 		return data.substring(startPosition, endPosition + 1);
 	}
 	
-	public int size() {
+	public int length() {
 		return data.length();
 	}
 	

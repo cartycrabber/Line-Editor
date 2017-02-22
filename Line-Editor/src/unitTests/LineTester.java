@@ -60,9 +60,9 @@ public class LineTester {
 	}
 	
 	@Test
-	public void testSize() {
-		assertEquals(19, line.size());
-		assertEquals(0, new Line().size());
+	public void testLength() {
+		assertEquals(19, line.length());
+		assertEquals(0, new Line().length());
 	}
 
 	@Test
