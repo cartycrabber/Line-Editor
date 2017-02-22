@@ -1,0 +1,101 @@
+C:\Users\carty\git\Line-Editor\Line-Editor>java -jar "Line Editor.jar"
+
+        Menu:  m                Delete line:  dl
+        Load file:  l           Delete range:  dr
+        Show all:  sa           Copy range:  cr
+        Show line:  sl          Paste lines:  pl
+        Show range:  sr         Write to file:  w
+        New line:  nl           Quit:  q
+        Edit line:  el          Write and quit:  wq
+
+->      nl
+
+Inserting at first line
+Type line? (y/n):       y
+1:      line one
+Type line? (y/n):       y
+2:      line two
+Type line? (y/n):       y
+3:      line three
+Type line? (y/n):       y
+4:      line four
+Type line? (y/n):       y
+5:      line five
+Type line? (y/n):       n
+
+->      cr
+
+from position?  1
+to position?    2
+
+->      pl
+
+Paste after line number?        1
+
+->      sa
+
+1:      line one
+2:      line one
+3:      line two
+4:      line two
+5:      line three
+6:      line four
+7:      line five
+
+->      pl
+
+Paste after line number?        7
+
+->      sa
+
+1:      line one
+2:      line one
+3:      line two
+4:      line two
+5:      line three
+6:      line four
+7:      line five
+8:      line one
+9:      line two
+
+->      el
+
+Which line?     1
+
+0    5
+|----+--
+line one
+
+        Show line:  s
+        Copy to string buffer:  c
+        Cut:  t
+        Paste from string buffer:  p
+        Enter new substring:  e
+        Delete substring:  d
+        Quit Line:  q
+->      e
+Insert At?      5
+text?   g
+
+0    5
+|----+---
+line gone
+
+->      q
+
+->      sa
+
+1:      line gone
+2:      line one
+3:      line two
+4:      line two
+5:      line three
+6:      line four
+7:      line five
+8:      line one
+9:      line two
+
+->      q
+
+
+C:\Users\carty\git\Line-Editor\Line-Editor>
