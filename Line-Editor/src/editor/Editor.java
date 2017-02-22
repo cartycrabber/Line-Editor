@@ -14,12 +14,12 @@ public class Editor {
 	static Document doc;
 	static Scanner in;
 	static LineList lineCopyBuffer;
-	static String charCopyBuffer;
+	static String stringCopyBuffer;
 
 	public static void main(String[] args) {
 		//Create our copy buffers
 		lineCopyBuffer = new LineList();
-		charCopyBuffer = "";
+		stringCopyBuffer = "";
 		
 		//Create a blank document
 		doc = new Document();
@@ -57,8 +57,10 @@ public class Editor {
 				newLine();
 				break;
 			case "el"://Edit Line
+				editLine();
 				break;
 			case "dl"://Delete Line
+				deleteLine();
 				break;
 			case "dr"://Delete Range
 				break;
@@ -69,7 +71,7 @@ public class Editor {
 			case "w"://Write to File
 				break;
 			case "q"://Quit
-				break;
+				return;
 			case "wq"://Write and Quit
 				break;
 			default:
@@ -78,6 +80,8 @@ public class Editor {
 		}
 	}
 
+	
+	
 	
 	static void showMenu() {
 		//Just go through printing all the options out like they are in the example, using tabs for spacing
@@ -90,6 +94,9 @@ public class Editor {
 				+ "\tNew line:  nl\t\tQuit:  q\n"
 				+ "\tEdit line:  el\t\tWrite and quit:  wq");
 	}
+	
+	
+	
 	
 	/**
 	 * Reads the file at specified path into the document
@@ -122,6 +129,9 @@ public class Editor {
 		}
 	}
 	
+	
+	
+	
 	/**
 	 * Performs the load command, asking for input and validating input then passing that to the load file function
 	 */
@@ -138,6 +148,9 @@ public class Editor {
 		}
 	}
 	
+	
+	
+	
 	/**
 	 * Shows all lines in the doc
 	 */
@@ -147,6 +160,9 @@ public class Editor {
 			System.out.println((i + 1) + ":\t" + doc.getLine(i).getAll());
 		}
 	}
+	
+	
+	
 	
 	static void showLine() {
 		//Prompt for line number
@@ -162,6 +178,9 @@ public class Editor {
 			System.out.println("Invalid line number");
 		}
 	}
+	
+	
+	
 	
 	static void showRange() {
 		//Prompt for start and end line numbers
@@ -208,6 +227,9 @@ public class Editor {
 		}
 	}
 	
+	
+	
+	
 	static void newLine() {
 		int lineNumber;
 		//If the doc is empty then this is the first line, else prompt for where to put this line
@@ -239,6 +261,7 @@ public class Editor {
 			System.out.println(doc.getLine(lineNumber - 1).getAll());
 		}
 		
+		//A loop for typing new lines. Only break out of this when user responds "n" to typing a new line
 		while(true) {
 			System.out.println("Type line? (y/n):\t");
 			String response = in.nextLine();
@@ -261,5 +284,292 @@ public class Editor {
 				continue;
 			}
 		}
+	}
+	
+	
+	
+	
+	static void editLine() {
+		System.out.print("Which line?\t");
+		//Read the lineNumber and verify the input just like i've done a few times already
+		int lineNumber = 0;
+		try {
+			lineNumber = Integer.parseInt(in.nextLine());
+			if((lineNumber <= 0) || (lineNumber > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid line number");
+			return;
+		}
+		
+		//Store the line for later use (subtract 1 because of the 0 indexed vs 1 indexed problem)
+		Line line = doc.getLine(lineNumber - 1);
+		
+		showLine(line);
+		
+		showLineMenu();
+		
+		while(true) {
+			System.out.print("->\t");
+			switch(in.nextLine()) {
+			case "s"://Show line
+				showLine(line);
+				break;
+			case "c"://Copy to string buffer
+				copyToStringBuffer(line);
+				break;
+			case "t"://Cut
+				cutToStringBuffer(line);
+				showLine(line);
+				break;
+			case "p"://Paste from string buffer
+				pasteFromStringBuffer(line);
+				showLine(line);
+				break;
+			case "e"://Enter new substring
+				enterNewSubstring(line);
+				showLine(line);
+				break;
+			case "d"://Delete substring
+				deleteSubstring(line);
+				showLine(line);
+				break;
+			case "q"://quit line
+				return;
+			default:
+				System.out.println("Unrecognized command");
+			}
+		}
+	}
+	
+	
+	static void showLineMenu() {
+		System.out.println(""
+				+ "\tShow line:  s\n"
+				+ "\tCopy to string buffer:  c\n"
+				+ "\tCut:  t\n"
+				+ "\tPaste from string buffer:  p\n"
+				+ "\tEnter new substring:  e\n"
+				+ "\tDelete substring:  d\n"
+				+ "\tQuit Line:  q");
+	}
+	
+	
+	static void showLine(Line line) {
+		//for spacing
+		System.out.println();
+		
+		//For loops to print out a scale as long as the line
+		//This one prints out the number every five digits
+		for(int i = 0; i < line.length(); i++) {
+			//Print the numbers divisible by 5 (0, 5, 10, 15, etc)
+			if((i % 5) == 0) {
+				System.out.print(i);
+				//Because numbers >= 10 take two character spaces, we need to skip one character ahead when we print them to accomodate the extra character
+				if(i >= 10) {
+					i++;
+				}
+			}
+			else {
+				System.out.print(" ");
+			}
+		}
+		//Make sure to get each row on a new line
+		System.out.println();
+		//Print out the tick marks
+		for(int i = 0; i < line.length(); i++) {
+			//print a bar on the 10s and a + on the 5s. everything else gets a -
+			if((i % 10) == 0) {
+				System.out.print("|");
+			}
+			else if((i % 5) == 0) {
+				System.out.print("+");
+			}
+			else {
+				System.out.print("-");
+			}
+		}
+		System.out.println();
+		System.out.println(line.getAll());
+		System.out.println();
+	}
+	
+	
+	static void copyToStringBuffer(Line line) {
+		int start = 0;
+		int end = 0;
+		
+		//Prompt for start position and validate input
+		System.out.print("from position?\t");
+		try {
+			start = Integer.parseInt(in.nextLine());
+			if((start < 0) || (start >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid start position");
+			return;
+		}
+		
+		//Prompt for end position and validate input
+		System.out.print("to position?\t");
+		try {
+			end = Integer.parseInt(in.nextLine());
+			if((end < 0) || (end >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid end position");
+			return;
+		}
+		
+		//Make sure start isnt after end
+		if(start > end) {
+			System.out.println("Start can't be after end");
+			return;
+		}
+		
+		//Now we can actually copy the substring to the buffer
+		stringCopyBuffer = line.get(start, end);
+	}
+	
+	
+	static void cutToStringBuffer(Line line) {
+		int start = 0;
+		int end = 0;
+		
+		//Prompt for start position and validate input
+		System.out.print("from position?\t");
+		try {
+			start = Integer.parseInt(in.nextLine());
+			if((start < 0) || (start >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid start position");
+			return;
+		}
+		
+		//Prompt for end position and validate input
+		System.out.print("to position?\t");
+		try {
+			end = Integer.parseInt(in.nextLine());
+			if((end < 0) || (end >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid end position");
+			return;
+		}
+		
+		//Make sure start isnt after end
+		if(start > end) {
+			System.out.println("Start can't be after end");
+			return;
+		}
+		
+		//Copy the substring to the buffer, then delete the substring from the line
+		stringCopyBuffer = line.get(start, end);
+		line.delete(start, end);
+	}
+	
+	
+	static void pasteFromStringBuffer(Line line) {
+		System.out.print("Insert At?\t");
+		int insertPosition = 0;
+		//Once again wait for input and validate it
+		try {
+			insertPosition = Integer.parseInt(in.nextLine());
+			
+			if((insertPosition < 0) || (insertPosition > line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid position");
+			return;
+		}
+		
+		//Now that we have a good insert position, go ahead and insert the copy buffer into the line
+		line.insert(insertPosition, stringCopyBuffer);
+	}
+	
+	
+	static void enterNewSubstring(Line line) {
+		System.out.print("Insert At?\t");
+		int insertPosition = 0;
+		//again, wait for input and validate it
+		try {
+			insertPosition = Integer.parseInt(in.nextLine());
+			
+			if((insertPosition < 0) || (insertPosition > line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid position");
+			return;
+		}
+		
+		System.out.print("text?\t");
+		String text = in.nextLine();
+		line.insert(insertPosition, text);
+	}
+	
+	static void deleteSubstring(Line line) {
+		int start = 0;
+		int end = 0;
+		
+		//Prompt for start position and validate input
+		System.out.print("from position?\t");
+		try {
+			start = Integer.parseInt(in.nextLine());
+			if((start < 0) || (start >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid start position");
+			return;
+		}
+		
+		//Prompt for end position and validate input
+		System.out.print("to position?\t");
+		try {
+			end = Integer.parseInt(in.nextLine());
+			if((end < 0) || (end >= line.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid end position");
+			return;
+		}
+		
+		//Make sure start isnt after end
+		if(start > end) {
+			System.out.println("Start can't be after end");
+			return;
+		}
+		
+		line.delete(start, end);
+	}
+	
+	
+	
+	static void deleteLine() {
+		System.out.print("Delete line number?\t");
+		int line = 0;
+		//wait for input and validate it
+		try {
+			line = Integer.parseInt(in.nextLine());
+			
+			if((line <= 0) || (line > doc.length())) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid line number");
+			return;
+		}
+		
+		//Delete the line, converting from 1 indexed to 0 indexed
+		doc.deleteLine(line - 1);
 	}
 }
