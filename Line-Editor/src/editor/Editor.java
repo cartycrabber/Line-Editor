@@ -1,5 +1,12 @@
 package editor;
 
+/*
+ * Created by Will Carty
+ * 2/22/17
+ * for CSC 310, D. Nordstrom
+ * 
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -40,9 +47,16 @@ public class Editor {
 		
 		//Start the program loop
 		while(true) {
+			
+			//Space things out a little so their easier to read
+			System.out.println();
+			
 			//Wait for input...
 			System.out.print("->\t");
 			String command = in.nextLine();
+			
+			//Space things out a little so their easier to read
+			System.out.println();
 			
 			//Go through the list of none commands looking for a match
 			switch(command) {
@@ -279,7 +293,7 @@ public class Editor {
 		
 		//A loop for typing new lines. Only break out of this when user responds "n" to typing a new line
 		while(true) {
-			System.out.println("Type line? (y/n):\t");
+			System.out.print("Type line? (y/n):\t");
 			String response = in.nextLine();
 			
 			if(response.equals("y")) {
